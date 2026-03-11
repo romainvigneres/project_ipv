@@ -1,0 +1,32 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment files (never commit secrets)
+.env
+backend/.env
+
+# Node
+node_modules/
+frontend/dist/
+
+# Nginx TLS (never commit private keys)
+nginx/ssl/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Database
+*.sqlite3
