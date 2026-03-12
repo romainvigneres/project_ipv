@@ -18,5 +18,15 @@ export const reportsApi = {
   send: (reportId, recipientEmail) =>
     api.post(`/reports/${reportId}/send`, { body: { recipient_email: recipientEmail } }),
 
-  pdfUrl: (reportId) => `/api/v1/reports/${reportId}/pdf`,
+  // Returns a temporary blob URL for authenticated PDF preview/download
+  fetchPdfBlobUrl: async (reportId) => {
+    const { useAuthStore } = await import('../store/auth')
+    const token = useAuthStore.getState().token
+    const res = await fetch(`/api/v1/reports/${reportId}/pdf`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+    if (!res.ok) throw new Error('Impossible de générer le PDF.')
+    const blob = await res.blob()
+    return URL.createObjectURL(blob)
+  },
 }

@@ -49,12 +49,13 @@ export default function ReportForm() {
   const ipvSection = report.sections.find((s) => s.section_type === 'ipv')
 
   function handleSave(sectionType, content) {
+    const wasAlreadyCompleted = report.status === 'completed'
     saveSection.mutate(
       { sectionType, content },
       {
         onSuccess: (updated) => {
-          // Auto-navigate to review once the section is saved
-          if (updated.status === 'completed') {
+          // Auto-navigate to review only on FIRST completion, not on subsequent edits
+          if (!wasAlreadyCompleted && updated.status === 'completed') {
             navigate(`/visits/${visitId}/report/review`)
           }
         },

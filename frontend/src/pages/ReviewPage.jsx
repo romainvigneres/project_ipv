@@ -11,6 +11,22 @@ export default function ReviewPage() {
   const navigate = useNavigate()
   const [recipientEmail, setRecipientEmail] = useState('')
   const [emailError, setEmailError] = useState('')
+  const [pdfLoading, setPdfLoading] = useState(false)
+  const [pdfError, setPdfError] = useState('')
+
+  async function handlePdfPreview() {
+    if (!report) return
+    setPdfLoading(true)
+    setPdfError('')
+    try {
+      const url = await reportsApi.fetchPdfBlobUrl(report.id)
+      window.open(url, '_blank')
+    } catch {
+      setPdfError('Impossible de générer l\'aperçu PDF.')
+    } finally {
+      setPdfLoading(false)
+    }
+  }
 
   const { data: report, isLoading } = useQuery({
     queryKey: ['report', 'visit', visitId],
@@ -47,8 +63,6 @@ export default function ReviewPage() {
     sendMutation.mutate()
   }
 
-  const pdfUrl = reportsApi.pdfUrl(report.id)
-
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
@@ -61,19 +75,19 @@ export default function ReviewPage() {
           </svg>
           Modifier
         </button>
-        <a
-          href={pdfUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="text-sm text-brand-600 font-medium flex items-center gap-1"
+        <button
+          onClick={handlePdfPreview}
+          disabled={pdfLoading}
+          className="text-sm text-brand-600 font-medium flex items-center gap-1 disabled:opacity-50"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
               d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
           </svg>
-          Aperçu PDF
-        </a>
+          {pdfLoading ? 'Génération…' : 'Aperçu PDF'}
+        </button>
       </div>
+      {pdfError && <p className="text-red-600 text-sm">{pdfError}</p>}
 
       <h1 className="text-xl font-bold text-gray-900">Vérification du rapport</h1>
 

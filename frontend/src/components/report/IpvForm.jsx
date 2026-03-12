@@ -5,7 +5,7 @@
  * The expert fills in the assessment fields and saves the whole form at once.
  */
 import { useForm, useWatch } from 'react-hook-form'
-import { useEffect } from 'react'
+import { useEffect, forwardRef } from 'react'
 import Input, { Textarea } from '../ui/Input'
 import Button from '../ui/Button'
 import {
@@ -39,7 +39,7 @@ function FormCard({ children }) {
   )
 }
 
-function Select({ label, error, required, children, ...props }) {
+const Select = forwardRef(function Select({ label, error, required, children, ...props }, ref) {
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -49,6 +49,7 @@ function Select({ label, error, required, children, ...props }) {
         </label>
       )}
       <select
+        ref={ref}
         className={[
           'w-full rounded-lg border px-3 py-2.5 text-base shadow-sm bg-white',
           'focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500',
@@ -61,7 +62,7 @@ function Select({ label, error, required, children, ...props }) {
       {error && <p className="text-xs text-red-600">{error}</p>}
     </div>
   )
-}
+})
 
 function CheckboxGroup({ label, options, value = [], onChange }) {
   function toggle(optValue) {
@@ -91,7 +92,7 @@ function CheckboxGroup({ label, options, value = [], onChange }) {
   )
 }
 
-function MoneyInput({ label, hint, required, ...props }) {
+const MoneyInput = forwardRef(function MoneyInput({ label, hint, required, ...props }, ref) {
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -102,6 +103,7 @@ function MoneyInput({ label, hint, required, ...props }) {
       )}
       <div className="relative">
         <input
+          ref={ref}
           type="number"
           step="0.01"
           min="0"
@@ -113,7 +115,7 @@ function MoneyInput({ label, hint, required, ...props }) {
       {hint && <p className="text-xs text-gray-500">{hint}</p>}
     </div>
   )
-}
+})
 
 // ── Main form ────────────────────────────────────────────────────────────────
 
