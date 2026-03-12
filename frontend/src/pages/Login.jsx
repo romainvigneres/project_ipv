@@ -29,24 +29,46 @@ export default function Login() {
   }
 
   return (
-    <div className="min-h-screen bg-brand-700 flex flex-col items-center justify-center px-4">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white tracking-tight">IPV</h1>
-          <p className="text-brand-100 text-sm mt-1">Rapport d'expertise terrain</p>
-          <div className="stelliant-gradient h-0.5 rounded-full mt-4 mx-auto w-16" />
+    <div className="min-h-screen bg-stelliant-bleu-nuit flex flex-col items-center justify-center px-4">
+
+      {/* Gradient accent bar — top of page */}
+      <div className="fixed top-0 left-0 right-0 h-1 stelliant-gradient" />
+
+      <div className="w-full max-w-sm flex flex-col items-center gap-8">
+
+        {/* Brand block */}
+        <div className="flex flex-col items-center gap-3">
+          {/* Logo — drop your SVG at frontend/public/logo-stelliant.svg */}
+          <img
+            src="/logo-stelliant.svg"
+            alt="Stelliant"
+            className="h-10 w-auto"
+            onError={(e) => { e.currentTarget.style.display = 'none' }}
+          />
+          {/* Fallback text shown while/if logo is missing */}
+          <p className="text-white text-2xl font-bold tracking-tight select-none">
+            Stelliant
+          </p>
+          <p className="text-stelliant-bleu-ciel/80 text-sm text-center">
+            Expertise Construction — Fiche IPV
+          </p>
+          <div className="stelliant-gradient h-px rounded-full w-20 mt-1" />
         </div>
 
+        {/* Card */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col"
+          className="w-full bg-white rounded-2xl shadow-2xl overflow-hidden"
         >
           <div className="stelliant-gradient h-1" />
-          <div className="p-6 flex flex-col gap-4">
-            <h2 className="text-xl font-semibold text-brand-700 text-center">Connexion</h2>
+
+          <div className="p-6 flex flex-col gap-5">
+            <h1 className="text-lg font-semibold text-stelliant-bleu-nuit text-center tracking-tight">
+              Connexion
+            </h1>
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2">
+              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-3 py-2.5">
                 {error}
               </div>
             )}
@@ -75,8 +97,8 @@ export default function Login() {
           </div>
         </form>
 
-        <p className="text-center text-brand-100/60 text-xs mt-6">
-          Choisir l'agilité des services à l'assurance
+        <p className="text-white/30 text-xs text-center">
+          © Stelliant — Choisir l'agilité des services à l'assurance
         </p>
       </div>
     </div>
