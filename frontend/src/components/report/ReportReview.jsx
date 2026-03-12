@@ -32,6 +32,13 @@ function fmt(value) {
   return Number(value).toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })
 }
 
+function fmtDate(isoStr) {
+  if (!isoStr) return null
+  const parts = isoStr.split('-')
+  if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`
+  return isoStr
+}
+
 export default function ReportReview({ report }) {
   const ipv = report.sections.find((s) => s.section_type === 'ipv')?.content ?? {}
 
@@ -79,8 +86,8 @@ export default function ReportReview({ report }) {
       </SectionBlock>
 
       <SectionBlock title="Informations chantier">
-        <Field label="Date ouverture chantier" value={ipv.date_ouverture_chantier} />
-        <Field label="Date de réception" value={ipv.date_reception} />
+        <Field label="Date ouverture chantier" value={fmtDate(ipv.date_ouverture_chantier)} />
+        <Field label="Date de réception" value={fmtDate(ipv.date_reception)} />
         <Field label="Coût de l'opération" value={fmt(ipv.cout_operation)} />
       </SectionBlock>
 

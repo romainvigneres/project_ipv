@@ -4,113 +4,139 @@
   <meta charset="UTF-8">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: Arial, sans-serif; font-size: 11pt; color: #222; }
-    h1 { font-size: 16pt; color: #1a3a5c; margin-bottom: 4px; }
-    h2 { font-size: 12pt; color: #1a3a5c; border-bottom: 1px solid #ccc;
-         padding-bottom: 4px; margin: 20px 0 8px; }
-    .header { display: flex; justify-content: space-between; margin-bottom: 20px; }
-    .meta { font-size: 9pt; color: #555; }
-    .field { margin-bottom: 6px; }
-    .label { font-weight: bold; }
-    .section { margin-bottom: 16px; }
-    .page-break { page-break-before: always; }
-    table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-    td, th { border: 1px solid #ddd; padding: 5px 8px; font-size: 10pt; }
-    th { background: #f0f4f8; font-weight: bold; text-align: left; }
-    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px;
-             font-size: 9pt; font-weight: bold; background: #e8f4e8; color: #2d6a2d; }
+    body { font-family: Arial, sans-serif; font-size: 10pt; color: #222; }
+
+    .header {
+      background: #171D3F;
+      color: white;
+      padding: 18px 24px 14px;
+    }
+    .header-title { font-size: 17pt; font-weight: bold; letter-spacing: -0.3px; }
+    .header-sub   { font-size: 9pt; color: #8fa8c8; margin-top: 2px; }
+    .gradient-bar {
+      height: 3px;
+      background: linear-gradient(90deg, #F7C800 0%, #FA8531 33%, #EA249E 66%, #7238F7 100%);
+      margin-top: 14px;
+    }
+    .header-meta  { display: flex; gap: 24px; margin-top: 10px; font-size: 8.5pt; color: #c0d0e0; flex-wrap: wrap; }
+    .header-meta strong { color: white; }
+
+    .content { padding: 16px 24px 8px; }
+
+    .section       { margin-bottom: 14px; }
+    .section-title {
+      font-size: 8.5pt; font-weight: bold; text-transform: uppercase;
+      letter-spacing: 0.6px; color: #171D3F;
+      border-left: 3px solid #FA8531;
+      padding: 2px 0 2px 8px;
+      margin-bottom: 6px;
+    }
+
+    table    { width: 100%; border-collapse: collapse; }
+    td       { padding: 5px 8px; font-size: 9.5pt; border: 1px solid #dde3f0; vertical-align: top; }
+    td.lbl   { font-weight: bold; width: 36%; background: #f5f7fb; color: #2c3e6e; white-space: nowrap; }
+    .total-row td { background: #171D3F; color: white; font-weight: bold; }
+
+    .oui { color: #c0392b; font-weight: bold; }
+    .non { color: #7f8c8d; }
+
+    .footer {
+      margin-top: 20px; padding: 8px 24px;
+      border-top: 1px solid #dde3f0;
+      font-size: 7.5pt; color: #aaa;
+      display: flex; justify-content: space-between;
+    }
   </style>
 </head>
 <body>
 
 <div class="header">
-  <div>
-    <h1>Rapport d'Expertise</h1>
-    <div class="meta">Référence sinistre : <strong>{{ report.claim_reference }}</strong></div>
-  </div>
-  <div style="text-align:right;" class="meta">
-    <div>Expert : {{ report.expert_name }}</div>
-    <div>Date de visite : {{ report.visit_date.strftime('%d/%m/%Y') }}</div>
-    <div>Généré le : {{ report.updated_at.strftime('%d/%m/%Y %H:%M') }}</div>
-    <div>Statut : <span class="badge">{{ report.status.value }}</span></div>
-  </div>
-</div>
-
-<h2>1. Informations générales</h2>
-<div class="section">
-  <table>
-    <tr><th style="width:35%">Champ</th><th>Valeur</th></tr>
-    <tr><td>Assuré</td><td>{{ report.client_name }}</td></tr>
-    <tr><td>Adresse</td><td>{{ report.address }}</td></tr>
-    {% set gi = sections.get('general_info', {}) %}
-    <tr><td>Assureur</td><td>{{ gi.get('insurer_name', '—') }}</td></tr>
-    <tr><td>N° de police</td><td>{{ gi.get('policy_number', '—') }}</td></tr>
-    <tr><td>Date du sinistre</td><td>{{ gi.get('loss_date', '—') }}</td></tr>
-    <tr><td>Nature du sinistre</td><td>{{ gi.get('loss_type', '—') }}</td></tr>
-  </table>
-  {% if gi.get('expert_comments') %}
-  <p style="margin-top:8px;"><strong>Commentaires :</strong> {{ gi.get('expert_comments') }}</p>
-  {% endif %}
-</div>
-
-<h2>2. Circonstances</h2>
-<div class="section">
-  {% set circ = sections.get('circumstances', {}) %}
-  <div class="field"><span class="label">Description :</span> {{ circ.get('description', '—') }}</div>
-  <div class="field"><span class="label">Témoins :</span>
-    {% if circ.get('witness_present') %}Oui — {{ circ.get('witness_details', '') }}{% else %}Non{% endif %}
-  </div>
-  <div class="field"><span class="label">Dépôt de plainte :</span>
-    {% if circ.get('police_report') %}Oui — N° {{ circ.get('police_report_number', '') }}{% else %}Non{% endif %}
+  <div class="header-title">Information de Première Visite</div>
+  <div class="header-sub">Stelliant Expertise Construction</div>
+  <div class="gradient-bar"></div>
+  <div class="header-meta">
+    <span>Réf. sinistre : <strong>{{ report.claim_reference }}</strong></span>
+    <span>Assuré : <strong>{{ report.client_name }}</strong></span>
+    <span>Date de visite : <strong>{{ report.visit_date.strftime('%d/%m/%Y') }}</strong></span>
+    <span>Expert : <strong>{{ report.expert_name }}</strong></span>
+    <span>Généré le : <strong>{{ report.updated_at.strftime('%d/%m/%Y %H:%M') }}</strong></span>
   </div>
 </div>
 
-<h2>3. Description des dommages</h2>
-<div class="section">
-  {% set dmg = sections.get('damage_description', {}) %}
-  {% if dmg.get('affected_rooms') %}
-  <div class="field"><span class="label">Pièces concernées :</span> {{ dmg.get('affected_rooms', []) | join(', ') }}</div>
-  {% endif %}
-  <div class="field"><span class="label">Dommages structurels :</span>
-    {% if dmg.get('structural_damage') %}Oui — {{ dmg.get('structural_details', '') }}{% else %}Non{% endif %}
+{% macro fr_date(d) %}{% if d and d|length >= 10 %}{{ d[8:10] }}/{{ d[5:7] }}/{{ d[0:4] }}{% elif d %}{{ d }}{% else %}—{% endif %}{% endmacro %}
+{% macro fr_money(v) %}{% if v is not none and v != '' and v|string != '0' %}{{ "{:,.0f}".format(v|float).replace(',', '\u202f') }} €{% else %}—{% endif %}{% endmacro %}
+
+{% set ipv = sections.get('ipv', {}) %}
+
+<div class="content">
+
+  <div class="section">
+    <div class="section-title">Enjeux</div>
+    <table>
+      <tr><td class="lbl">Enjeu assureur</td><td>{{ ipv.get('enjeu_assureur') or '—' }}</td></tr>
+      <tr><td class="lbl">Enjeu assuré — Matériel</td><td>{{ fr_money(ipv.get('enjeu_assure_materiel')) }}</td></tr>
+      <tr><td class="lbl">Enjeu assuré — Immatériel</td><td>{{ fr_money(ipv.get('enjeu_assure_immateriel')) }}</td></tr>
+      {% set mat   = (ipv.get('enjeu_assure_materiel')   or 0)|float %}
+      {% set immat = (ipv.get('enjeu_assure_immateriel') or 0)|float %}
+      {% if mat > 0 or immat > 0 %}
+      <tr class="total-row">
+        <td>Total enjeu assuré</td>
+        <td>{{ "{:,.0f}".format(mat + immat).replace(',', '\u202f') }} €</td>
+      </tr>
+      {% endif %}
+    </table>
   </div>
-  <div class="field"><span class="label">Dommages aux biens :</span>
-    {% if dmg.get('personal_property_damage') %}Oui — {{ dmg.get('personal_property_details', '') }}{% else %}Non{% endif %}
+
+  <div class="section">
+    <div class="section-title">Dommages</div>
+    <table>
+      <tr><td class="lbl">Dommage déclaré</td><td>{{ ipv.get('dommage_declare') or '—' }}</td></tr>
+      <tr><td class="lbl">Dommage constaté</td><td>{{ ipv.get('dommage_constate') or '—' }}</td></tr>
+    </table>
   </div>
-  {% if dmg.get('estimated_amount') is not none %}
-  <div class="field"><span class="label">Montant estimé :</span> {{ "%.2f"|format(dmg.get('estimated_amount')) }} €</div>
-  {% endif %}
+
+  <div class="section">
+    <div class="section-title">Informations chantier</div>
+    <table>
+      <tr><td class="lbl">Date ouverture chantier</td><td>{{ fr_date(ipv.get('date_ouverture_chantier')) }}</td></tr>
+      <tr><td class="lbl">Date de réception</td><td>{{ fr_date(ipv.get('date_reception')) }}</td></tr>
+      <tr><td class="lbl">Coût de l'opération</td><td>{{ fr_money(ipv.get('cout_operation')) }}</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Actions</div>
+    <table>
+      <tr>
+        <td class="lbl">Actions effectuées</td>
+        <td>{% if ipv.get('actions_effectuees') %}{{ ipv.get('actions_effectuees')|join(', ') }}{% else %}—{% endif %}</td>
+      </tr>
+      <tr>
+        <td class="lbl">Actions à venir</td>
+        <td>{% if ipv.get('actions_a_venir') %}{{ ipv.get('actions_a_venir')|join(', ') }}{% else %}—{% endif %}</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Indicateurs de fraude</div>
+    <table>
+      {% set questions = ['Question fraude 1', 'Question fraude 2', 'Question fraude 3', 'Question fraude 4', 'Question fraude 5'] %}
+      {% for q in questions %}
+      {% set answered = ipv.get('fraude_q' ~ loop.index, false) %}
+      <tr>
+        <td class="lbl">{{ q }}</td>
+        <td class="{{ 'oui' if answered else 'non' }}">{{ 'Oui' if answered else 'Non' }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+
 </div>
 
-<h2>4. Mesures d'urgence prises</h2>
-<div class="section">
-  {% set em = sections.get('emergency_measures', {}) %}
-  {% if em.get('measures_taken') %}
-  <ul>{% for m in em.get('measures_taken', []) %}<li>{{ m }}</li>{% endfor %}</ul>
-  {% endif %}
-  <div class="field"><span class="label">Prestataire :</span> {{ em.get('service_provider', '—') }}</div>
-  {% if em.get('cost_estimate') is not none %}
-  <div class="field"><span class="label">Coût estimé :</span> {{ "%.2f"|format(em.get('cost_estimate')) }} €</div>
-  {% endif %}
-  {% if em.get('notes') %}
-  <div class="field"><span class="label">Notes :</span> {{ em.get('notes') }}</div>
-  {% endif %}
-</div>
-
-<h2>5. Observations complémentaires</h2>
-<div class="section">
-  {% set obs = sections.get('additional_observations', {}) %}
-  <div class="field">{{ obs.get('observations', '—') }}</div>
-  {% if obs.get('recommendations') %}
-  <div class="field" style="margin-top:8px;"><span class="label">Recommandations :</span> {{ obs.get('recommendations') }}</div>
-  {% endif %}
-  {% if obs.get('follow_up_required') %}
-  <div class="field"><span class="label">Suivi nécessaire :</span> {{ obs.get('follow_up_details', '') }}</div>
-  {% endif %}
-</div>
-
-<div style="margin-top:40px; border-top: 1px solid #ccc; padding-top: 12px; font-size: 9pt; color: #777;">
-  Rapport généré par le système IPV — {{ report.expert_name }} — {{ report.claim_reference }}
+<div class="footer">
+  <span>Fiche IPV — {{ report.claim_reference }}</span>
+  <span>{{ report.expert_name }} — généré le {{ report.updated_at.strftime('%d/%m/%Y à %H:%M') }}</span>
 </div>
 
 </body>

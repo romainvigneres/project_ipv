@@ -91,6 +91,7 @@ export default function ReportForm() {
         visit={visit}
         onSave={handleSave}
         saving={saveSection.isPending}
+        saveSuccess={saveSection.isSuccess}
       />
 
       {saveSection.isError && (

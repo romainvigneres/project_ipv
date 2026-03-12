@@ -5,7 +5,7 @@
  * The expert fills in the assessment fields and saves the whole form at once.
  */
 import { useForm, useWatch } from 'react-hook-form'
-import { useEffect, forwardRef } from 'react'
+import { useEffect, useRef, useState, forwardRef } from 'react'
 import Input, { Textarea } from '../ui/Input'
 import Button from '../ui/Button'
 import {
@@ -119,7 +119,19 @@ const MoneyInput = forwardRef(function MoneyInput({ label, hint, required, ...pr
 
 // ── Main form ────────────────────────────────────────────────────────────────
 
-export default function IpvForm({ initialData = {}, visit, onSave, saving }) {
+export default function IpvForm({ initialData = {}, visit, onSave, saving, saveSuccess }) {
+  const [showSaved, setShowSaved] = useState(false)
+  const prevSuccess = useRef(false)
+
+  useEffect(() => {
+    if (saveSuccess && !prevSuccess.current) {
+      setShowSaved(true)
+      const t = setTimeout(() => setShowSaved(false), 2500)
+      prevSuccess.current = true
+      return () => clearTimeout(t)
+    }
+    if (!saveSuccess) prevSuccess.current = false
+  }, [saveSuccess])
   const { register, handleSubmit, control, setValue, reset, formState: { errors } } = useForm({
     defaultValues: {
       enjeu_assureur: '',
@@ -311,9 +323,35 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving }) {
         </div>
       </FormCard>
 
-      <Button type="submit" fullWidth loading={saving}>
-        Enregistrer la fiche IPV
-      </Button>
+      <button
+        type="submit"
+        disabled={saving}
+        className={[
+          'w-full py-3 px-4 rounded-xl font-semibold text-base transition-all duration-300',
+          'flex items-center justify-center gap-2',
+          saving
+            ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            : showSaved
+            ? 'bg-stelliant-vert text-white'
+            : 'bg-stelliant-bleu-nuit text-white active:scale-95',
+        ].join(' ')}
+      >
+        {saving ? (
+          <>
+            <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            Enregistrement…
+          </>
+        ) : showSaved ? (
+          <>
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            Enregistré !
+          </>
+        ) : (
+          'Enregistrer la fiche IPV'
+        )}
+      </button>
     </form>
   )
 }
