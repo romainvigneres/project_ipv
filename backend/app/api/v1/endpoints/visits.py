@@ -19,11 +19,14 @@ def _saas_visit_to_db(saas: SaasVisit, expert_id: int) -> Visit:
     return Visit(
         saas_id=saas.saas_id,
         claim_reference=saas.claim_reference,
+        claim_label=saas.claim_label,
+        claim_avensys=saas.claim_avensys,
         expert_id=expert_id,
         client_name=saas.client_name,
         client_email=saas.client_email,
         address=saas.address,
         visit_time=saas.visit_time,
+        manager_email=saas.manager_email,
         construction_start_date=saas.construction_start_date,
         reception_date=saas.reception_date,
         operation_cost=saas.operation_cost,
@@ -49,6 +52,9 @@ async def _sync_visits(
             visit.client_name = sv.client_name
             visit.address = sv.address
             visit.visit_time = sv.visit_time
+            visit.claim_label = sv.claim_label
+            visit.claim_avensys = sv.claim_avensys
+            visit.manager_email = sv.manager_email
             visit.construction_start_date = sv.construction_start_date
             visit.reception_date = sv.reception_date
             visit.operation_cost = sv.operation_cost

@@ -9,6 +9,8 @@ class VisitRead(BaseModel):
     id: int
     saas_id: str
     claim_reference: str
+    claim_label: str | None = None
+    claim_avensys: str | None = None
     expert_id: int
     client_name: str
     client_email: str | None
@@ -16,6 +18,7 @@ class VisitRead(BaseModel):
     visit_time: datetime
     status: VisitStatus
     has_report: bool = False
+    manager_email: str | None = None
 
     # IPV pre-fill fields (synced from SaaS)
     construction_start_date: str | None = None

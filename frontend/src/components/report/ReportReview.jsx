@@ -81,8 +81,26 @@ export default function ReportReview({ report }) {
       </SectionBlock>
 
       <SectionBlock title="Dommages">
-        <Field label="Dommage déclaré" value={ipv.dommage_declare} />
-        <Field label="Dommage constaté" value={ipv.dommage_constate} />
+        {(ipv.dommages_declares?.length > 0) ? (
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dommage(s) déclaré(s)</span>
+            {ipv.dommages_declares.map((d, i) => (
+              <span key={i} className="text-sm text-gray-800">• {d}</span>
+            ))}
+          </div>
+        ) : (
+          <Field label="Dommage(s) déclaré(s)" value={null} />
+        )}
+        {(ipv.dommages_constates?.length > 0) ? (
+          <div className="flex flex-col gap-0.5">
+            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dommage(s) constaté(s)</span>
+            {ipv.dommages_constates.map((d, i) => (
+              <span key={i} className="text-sm text-gray-800">• {d}</span>
+            ))}
+          </div>
+        ) : (
+          <Field label="Dommage(s) constaté(s)" value={null} />
+        )}
       </SectionBlock>
 
       <SectionBlock title="Informations chantier">

@@ -90,8 +90,18 @@
   <div class="section">
     <div class="section-title">Dommages</div>
     <table>
-      <tr><td class="lbl">Dommage déclaré</td><td>{{ ipv.get('dommage_declare') or '—' }}</td></tr>
-      <tr><td class="lbl">Dommage constaté</td><td>{{ ipv.get('dommage_constate') or '—' }}</td></tr>
+      {% set dd = ipv.get('dommages_declares', []) %}
+      {% set dc = ipv.get('dommages_constates', []) %}
+      {% if dd %}
+        {% for d in dd %}<tr><td class="lbl">{% if loop.first %}Dommage(s) déclaré(s){% endif %}</td><td>{{ d }}</td></tr>{% endfor %}
+      {% else %}
+        <tr><td class="lbl">Dommage(s) déclaré(s)</td><td>—</td></tr>
+      {% endif %}
+      {% if dc %}
+        {% for d in dc %}<tr><td class="lbl">{% if loop.first %}Dommage(s) constaté(s){% endif %}</td><td>{{ d }}</td></tr>{% endfor %}
+      {% else %}
+        <tr><td class="lbl">Dommage(s) constaté(s)</td><td>—</td></tr>
+      {% endif %}
     </table>
   </div>
 

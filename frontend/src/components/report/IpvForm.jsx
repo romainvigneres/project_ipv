@@ -1,7 +1,7 @@
 /**
  * IpvForm
  * Single-page form for the "Information de Première Visite".
- * Pre-filled fields (dommage_declare, dates, coût) come from the visit object.
+ * Pre-filled fields (dommages_declares, dates, coût) come from the visit object.
  * The expert fills in the assessment fields and saves the whole form at once.
  */
 import { useForm, useWatch } from 'react-hook-form'
@@ -92,7 +92,7 @@ function CheckboxGroup({ label, options, value = [], onChange }) {
   )
 }
 
-const MoneyInput = forwardRef(function MoneyInput({ label, hint, required, ...props }, ref) {
+const MoneyInput = forwardRef(function MoneyInput({ label, required, ...props }, ref) {
   return (
     <div className="flex flex-col gap-1">
       {label && (
@@ -112,10 +112,97 @@ const MoneyInput = forwardRef(function MoneyInput({ label, hint, required, ...pr
         />
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none">€</span>
       </div>
-      {hint && <p className="text-xs text-gray-500">{hint}</p>}
     </div>
   )
 })
+
+/** Dynamic list field (Dommages) */
+function DommagesList({ label, value = [], onChange, placeholder }) {
+  function update(i, text) {
+    const next = [...value]
+    next[i] = text
+    onChange(next)
+  }
+  function remove(i) {
+    onChange(value.filter((_, idx) => idx !== i))
+  }
+  function add() {
+    onChange([...value, ''])
+  }
+  return (
+    <div className="flex flex-col gap-2">
+      {label && <p className="text-sm font-medium text-gray-700">{label}</p>}
+      {value.map((item, i) => (
+        <div key={i} className="flex gap-2 items-start">
+          <textarea
+            value={item}
+            onChange={(e) => update(i, e.target.value)}
+            rows={2}
+            placeholder={placeholder}
+            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-base shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
+          />
+          <button
+            type="button"
+            onClick={() => remove(i)}
+            className="mt-1 text-gray-400 hover:text-red-500 transition-colors"
+            aria-label="Supprimer"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        className="flex items-center gap-1.5 text-sm text-brand-600 font-medium mt-1"
+      >
+        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+        </svg>
+        Ajouter un dommage
+      </button>
+    </div>
+  )
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+function buildDefaults(initialData, visit) {
+  // Handle legacy single-string dommage fields from old saves
+  let dommages_declares = initialData.dommages_declares
+  if (!dommages_declares) {
+    const legacy = initialData.dommage_declare ?? visit?.declared_damage
+    dommages_declares = legacy ? [legacy] : []
+  }
+  let dommages_constates = initialData.dommages_constates
+  if (!dommages_constates) {
+    const legacy = initialData.dommage_constate
+    dommages_constates = legacy ? [legacy] : []
+  }
+  return {
+    enjeu_assureur: '',
+    enjeu_assure_materiel: '',
+    enjeu_assure_immateriel: '',
+    dommages_declares,
+    dommages_constates,
+    date_ouverture_chantier: visit?.construction_start_date ?? '',
+    date_reception: visit?.reception_date ?? '',
+    cout_operation: visit?.operation_cost ?? '',
+    actions_effectuees: [],
+    actions_a_venir: [],
+    fraude_q1: false,
+    fraude_q2: false,
+    fraude_q3: false,
+    fraude_q4: false,
+    fraude_q5: false,
+    ...initialData,
+    // Always override with resolved list fields
+    dommages_declares,
+    dommages_constates,
+  }
+}
 
 // ── Main form ────────────────────────────────────────────────────────────────
 
@@ -132,68 +219,37 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
     }
     if (!saveSuccess) prevSuccess.current = false
   }, [saveSuccess])
+
   const { register, handleSubmit, control, setValue, reset, formState: { errors } } = useForm({
-    defaultValues: {
-      enjeu_assureur: '',
-      enjeu_assure_materiel: '',
-      enjeu_assure_immateriel: '',
-      dommage_declare: visit?.declared_damage ?? '',
-      dommage_constate: '',
-      date_ouverture_chantier: visit?.construction_start_date ?? '',
-      date_reception: visit?.reception_date ?? '',
-      cout_operation: visit?.operation_cost ?? '',
-      actions_effectuees: [],
-      actions_a_venir: [],
-      fraude_q1: false,
-      fraude_q2: false,
-      fraude_q3: false,
-      fraude_q4: false,
-      fraude_q5: false,
-      ...initialData,
-    },
+    defaultValues: buildDefaults(initialData, visit),
   })
 
   // Sync when navigating back to a previously saved form
   useEffect(() => {
     if (Object.keys(initialData).length > 0) {
-      reset({
-        enjeu_assureur: '',
-        enjeu_assure_materiel: '',
-        enjeu_assure_immateriel: '',
-        dommage_declare: visit?.declared_damage ?? '',
-        dommage_constate: '',
-        date_ouverture_chantier: visit?.construction_start_date ?? '',
-        date_reception: visit?.reception_date ?? '',
-        cout_operation: visit?.operation_cost ?? '',
-        actions_effectuees: [],
-        actions_a_venir: [],
-        fraude_q1: false,
-        fraude_q2: false,
-        fraude_q3: false,
-        fraude_q4: false,
-        fraude_q5: false,
-        ...initialData,
-      })
+      reset(buildDefaults(initialData, visit))
     }
   }, [])
 
-  // Watched values for derived total
+  // Watched values for derived total and list fields
   const materiel = useWatch({ control, name: 'enjeu_assure_materiel' })
   const immateriel = useWatch({ control, name: 'enjeu_assure_immateriel' })
   const actionsEffectuees = useWatch({ control, name: 'actions_effectuees' })
   const actionsAVenir = useWatch({ control, name: 'actions_a_venir' })
+  const dommagesDeclares = useWatch({ control, name: 'dommages_declares' })
+  const dommagesConstates = useWatch({ control, name: 'dommages_constates' })
 
-  const total =
-    (parseFloat(materiel) || 0) + (parseFloat(immateriel) || 0)
+  const total = (parseFloat(materiel) || 0) + (parseFloat(immateriel) || 0)
 
   const onSubmit = (data) => {
-    // Coerce numeric strings to numbers
     const cleaned = {
       ...data,
       enjeu_assure_materiel: data.enjeu_assure_materiel !== '' ? parseFloat(data.enjeu_assure_materiel) : null,
       enjeu_assure_immateriel: data.enjeu_assure_immateriel !== '' ? parseFloat(data.enjeu_assure_immateriel) : null,
       cout_operation: data.cout_operation !== '' ? parseFloat(data.cout_operation) : null,
       enjeu_assureur: data.enjeu_assureur || null,
+      dommages_declares: dommagesDeclares.filter(Boolean),
+      dommages_constates: dommagesConstates.filter(Boolean),
     }
     onSave('ipv', cleaned)
   }
@@ -244,18 +300,18 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
       {/* 3 — Dommages */}
       <FormCard>
         <SectionTitle number="3" title="Dommages" />
-        <div className="flex flex-col gap-3">
-          <Textarea
-            label="Dommage déclaré"
-            rows={3}
-            hint="Pré-rempli depuis Avensys — modifiable si nécessaire"
-            {...register('dommage_declare')}
+        <div className="flex flex-col gap-4">
+          <DommagesList
+            label="Dommage(s) déclaré(s)"
+            value={dommagesDeclares}
+            onChange={(v) => setValue('dommages_declares', v)}
+            placeholder="Dommage déclaré par l'assuré…"
           />
-          <Textarea
-            label="Dommage constaté"
-            rows={3}
-            placeholder="Décrivez les dommages constatés lors de la visite…"
-            {...register('dommage_constate')}
+          <DommagesList
+            label="Dommage(s) constaté(s)"
+            value={dommagesConstates}
+            onChange={(v) => setValue('dommages_constates', v)}
+            placeholder="Dommage constaté lors de la visite…"
           />
         </div>
       </FormCard>
@@ -264,23 +320,20 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
       <FormCard>
         <SectionTitle number="4" title="Informations chantier" />
         <div className="flex flex-col gap-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 items-end">
             <Input
-              label="Date ouverture chantier"
+              label="Ouverture chantier"
               type="date"
-              hint="Pré-rempli"
               {...register('date_ouverture_chantier')}
             />
             <Input
               label="Date de réception"
               type="date"
-              hint="Pré-rempli"
               {...register('date_reception')}
             />
           </div>
           <MoneyInput
             label="Coût de l'opération"
-            hint="Pré-rempli depuis Avensys"
             placeholder="0"
             {...register('cout_operation')}
           />

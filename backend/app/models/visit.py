@@ -27,6 +27,8 @@ class Visit(Base):
     saas_id: Mapped[str] = mapped_column(String(128), unique=True, index=True, nullable=False)
     # Claim reference number
     claim_reference: Mapped[str] = mapped_column(String(128), index=True, nullable=False)
+    claim_label: Mapped[str | None] = mapped_column(String(512), nullable=True)
+    claim_avensys: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
     expert_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
 
@@ -34,6 +36,8 @@ class Visit(Base):
     client_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     address: Mapped[str] = mapped_column(Text, nullable=False)
     visit_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    manager_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # IPV pre-fill fields — synced from SaaS, editable by expert in the form
     construction_start_date: Mapped[str | None] = mapped_column(String(32), nullable=True)

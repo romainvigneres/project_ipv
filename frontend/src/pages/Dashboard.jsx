@@ -16,9 +16,14 @@ function VisitCard({ visit, onClick }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-gray-900 truncate">{visit.client_name}</p>
+          {visit.claim_label && (
+            <p className="text-sm text-stelliant-bleu-nuit font-medium truncate">{visit.claim_label}</p>
+          )}
           <p className="text-sm text-gray-500 truncate">{visit.address}</p>
           <p className="text-xs text-gray-400 mt-1">
-            Réf. {visit.claim_reference} · {time}
+            Réf. {visit.claim_reference}
+            {visit.claim_avensys && <> · Avensys {visit.claim_avensys}</>}
+            {' · '}{time}
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
@@ -69,7 +74,7 @@ export default function Dashboard() {
     )
   }
 
-  const today = data?.today ?? []
+  const today = [...(data?.today ?? [])].sort((a, b) => new Date(a.visit_time) - new Date(b.visit_time))
   const pending = data?.pending_report ?? []
 
   return (

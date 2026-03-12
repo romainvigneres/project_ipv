@@ -40,9 +40,9 @@ class IpvContent(BaseModel):
     enjeu_assure_immateriel: float | None = None
     # enjeu_assure_total is derived: materiel + immateriel (computed on frontend + PDF)
 
-    # 2. Dommages
-    dommage_declare: str = ""      # pre-filled from SaaS
-    dommage_constate: str = ""     # filled by expert after visit
+    # 2. Dommages (multiples par dossier)
+    dommages_declares: list[str] = []   # pre-filled from SaaS
+    dommages_constates: list[str] = []  # filled by expert after visit
 
     # 3. Dates & coût chantier (pre-filled from SaaS, editable)
     date_ouverture_chantier: str = ""

@@ -92,6 +92,18 @@ export default function VisitPage() {
                 {visitDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
               </dd>
             </div>
+            {visit.claim_avensys && (
+              <div>
+                <dt className="text-xs text-gray-500 font-medium uppercase tracking-wide">N° Avensys</dt>
+                <dd className="text-gray-800 font-mono">{visit.claim_avensys}</dd>
+              </div>
+            )}
+            {visit.claim_label && (
+              <div className={visit.claim_avensys ? '' : 'col-span-2'}>
+                <dt className="text-xs text-gray-500 font-medium uppercase tracking-wide">Libellé sinistre</dt>
+                <dd className="text-gray-800">{visit.claim_label}</dd>
+              </div>
+            )}
             <div className="col-span-2">
               <dt className="text-xs text-gray-500 font-medium uppercase tracking-wide">Adresse</dt>
               <dd className="text-gray-800">{visit.address}</dd>

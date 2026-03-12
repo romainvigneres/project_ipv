@@ -29,11 +29,14 @@ class SaasVisit:
     def __init__(self, raw: dict[str, Any]) -> None:
         self.saas_id: str = str(raw["id"])
         self.claim_reference: str = raw["claimReference"]
+        self.claim_label: str | None = raw.get("claimLabel")
+        self.claim_avensys: str | None = raw.get("claimAvensys")
         self.client_name: str = raw["clientName"]
         self.client_email: str | None = raw.get("clientEmail")
         self.address: str = raw["address"]
         self.visit_time: datetime = datetime.fromisoformat(raw["visitTime"])
         self.expert_email: str = raw["expertEmail"]
+        self.manager_email: str | None = raw.get("managerEmail")
         # IPV pre-fill fields
         self.construction_start_date: str | None = raw.get("constructionStartDate")
         self.reception_date: str | None = raw.get("receptionDate")
@@ -120,11 +123,14 @@ class StubSaasClient(AbstractSaasClient):
                 {
                     "id": "VISIT-001",
                     "claimReference": "SIN-2024-00123",
+                    "claimLabel": "Dégâts des eaux — combles",
+                    "claimAvensys": "AV-2024-00123",
                     "clientName": "Jean Dupont",
                     "clientEmail": "jean.dupont@example.com",
                     "address": "12 rue de la Paix, 75002 Paris",
                     "visitTime": f"{target_date.isoformat()}T09:00:00+00:00",
                     "expertEmail": expert_email,
+                    "managerEmail": "gestionnaire1@stelliant.fr",
                     "constructionStartDate": "2022-03-15",
                     "receptionDate": "2023-06-20",
                     "operationCost": 285000.0,
@@ -135,11 +141,14 @@ class StubSaasClient(AbstractSaasClient):
                 {
                     "id": "VISIT-002",
                     "claimReference": "SIN-2024-00124",
+                    "claimLabel": "Fissures structurelles",
+                    "claimAvensys": "AV-2024-00124",
                     "clientName": "Marie Martin",
                     "clientEmail": "marie.martin@example.com",
                     "address": "5 avenue Victor Hugo, 69002 Lyon",
                     "visitTime": f"{target_date.isoformat()}T14:00:00+00:00",
                     "expertEmail": expert_email,
+                    "managerEmail": "gestionnaire2@stelliant.fr",
                     "constructionStartDate": "2021-09-01",
                     "receptionDate": "2022-11-30",
                     "operationCost": 540000.0,
@@ -150,11 +159,14 @@ class StubSaasClient(AbstractSaasClient):
                 {
                     "id": "VISIT-003",
                     "claimReference": "SIN-2024-00125",
+                    "claimLabel": "Rupture canalisation sous-sol",
+                    "claimAvensys": "AV-2024-00125",
                     "clientName": "Pierre Leclerc",
                     "clientEmail": "pierre.leclerc@example.com",
                     "address": "8 rue des Lilas, 33000 Bordeaux",
                     "visitTime": f"{target_date.isoformat()}T10:30:00+00:00",
                     "expertEmail": expert_email,
+                    "managerEmail": "gestionnaire1@stelliant.fr",
                     "constructionStartDate": "2020-05-10",
                     "receptionDate": "2021-08-15",
                     "operationCost": 125000.0,
@@ -165,11 +177,14 @@ class StubSaasClient(AbstractSaasClient):
                 {
                     "id": "VISIT-004",
                     "claimReference": "SIN-2024-00126",
+                    "claimLabel": "Effondrement plancher bois",
+                    "claimAvensys": "AV-2024-00126",
                     "clientName": "Sophie Bernard",
                     "clientEmail": None,
                     "address": "22 allée des Roses, 31000 Toulouse",
                     "visitTime": f"{target_date.isoformat()}T16:00:00+00:00",
                     "expertEmail": expert_email,
+                    "managerEmail": "gestionnaire3@stelliant.fr",
                     "constructionStartDate": "2019-11-20",
                     "receptionDate": "2021-03-01",
                     "operationCost": 890000.0,
