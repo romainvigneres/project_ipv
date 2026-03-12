@@ -45,22 +45,12 @@ export default function ReportForm() {
     )
   }
 
-  // Extract existing IPV section content (if already saved)
   const ipvSection = report.sections.find((s) => s.section_type === 'ipv')
+  // Show review button once the section has been saved at least once
+  const canReview = ipvSection != null || saveSection.isSuccess
 
   function handleSave(sectionType, content) {
-    const wasAlreadyCompleted = report.status === 'completed'
-    saveSection.mutate(
-      { sectionType, content },
-      {
-        onSuccess: (updated) => {
-          // Auto-navigate to review only on FIRST completion, not on subsequent edits
-          if (!wasAlreadyCompleted && updated.status === 'completed') {
-            navigate(`/visits/${visitId}/report/review`)
-          }
-        },
-      }
-    )
+    saveSection.mutate({ sectionType, content })
   }
 
   return (
@@ -98,11 +88,11 @@ export default function ReportForm() {
         <p className="text-red-600 text-sm">{saveSection.error?.message}</p>
       )}
 
-      {/* Review button — available once the IPV section has been saved */}
-      {report.status === 'completed' && !saveSection.isPending && (
+      {canReview && (
         <Button
           fullWidth
           variant="secondary"
+          disabled={saveSection.isPending}
           onClick={() => navigate(`/visits/${visitId}/report/review`)}
         >
           Relire et envoyer →

@@ -94,7 +94,7 @@
       {% for dmg in dommages %}
       <table style="margin-bottom:6px;">
         {% if dommages|length > 1 %}
-        <tr><td class="lbl" colspan="2" style="background:#e8ecf5;color:#171D3F;">Dommage {{ loop.index }}{% if dmg.get('saas_id') %} — {{ dmg.get('saas_id') }}{% endif %}</td></tr>
+        <tr><td class="lbl" colspan="2" style="background:#e8ecf5;color:#171D3F;">Dommage {{ loop.index }}</td></tr>
         {% endif %}
         <tr><td class="lbl">Déclaré</td><td>{{ dmg.get('dommage_declare') or '—' }}</td></tr>
         <tr><td class="lbl">Constaté</td><td>{{ dmg.get('dommage_constate') or '—' }}</td></tr>

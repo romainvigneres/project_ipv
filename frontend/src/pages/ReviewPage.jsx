@@ -20,6 +20,7 @@ export default function ReviewPage() {
       const reports = await reportsApi.list()
       return reports.find((r) => r.visit_id === parseInt(visitId)) ?? null
     },
+    refetchOnMount: 'always',
   })
 
   const { data: visit } = useQuery({
