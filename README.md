@@ -113,6 +113,11 @@ mkdir -p nginx/ssl
 cp /path/to/fullchain.pem nginx/ssl/
 cp /path/to/privkey.pem   nginx/ssl/
 # Update nginx/nginx.conf: replace `ipv.yourcompany.example.com` with your domain
+# for dev we can use self signed certs:
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+  -keyout nginx/ssl/privkey.pem \
+  -out nginx/ssl/fullchain.pem \
+  -subj "/CN=localhost"
 ```
 
 ### 3. Start the stack

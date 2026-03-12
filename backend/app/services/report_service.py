@@ -84,7 +84,7 @@ class ReportService:
             select(ReportSection).where(ReportSection.report_id == report.id)
         )
         filled = {s.section_type for s in result.scalars().all()}
-        if filled >= {t for t in SectionType}:
+        if SectionType.ipv in filled:
             report.status = ReportStatus.completed
 
     async def submit(

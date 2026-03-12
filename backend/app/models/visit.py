@@ -1,7 +1,7 @@
 import enum
 from datetime import datetime, timezone
 
-from sqlalchemy import DateTime, Enum, ForeignKey, String, Text
+from sqlalchemy import DateTime, Enum, Float, ForeignKey, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.database import Base
@@ -34,6 +34,13 @@ class Visit(Base):
     client_email: Mapped[str | None] = mapped_column(String(255), nullable=True)
     address: Mapped[str] = mapped_column(Text, nullable=False)
     visit_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    # IPV pre-fill fields — synced from SaaS, editable by expert in the form
+    construction_start_date: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    reception_date: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    operation_cost: Mapped[float | None] = mapped_column(Float, nullable=True)
+    declared_damage: Mapped[str | None] = mapped_column(Text, nullable=True)
+
     status: Mapped[VisitStatus] = mapped_column(
         Enum(VisitStatus), default=VisitStatus.scheduled, nullable=False
     )

@@ -17,11 +17,7 @@ class ReportStatus(str, enum.Enum):
 
 
 class SectionType(str, enum.Enum):
-    general_info = "general_info"
-    circumstances = "circumstances"
-    damage_description = "damage_description"
-    emergency_measures = "emergency_measures"
-    additional_observations = "additional_observations"
+    ipv = "ipv"
 
 
 class Report(Base):
@@ -35,6 +31,8 @@ class Report(Base):
     status: Mapped[ReportStatus] = mapped_column(
         Enum(ReportStatus), default=ReportStatus.draft, nullable=False, index=True
     )
+    # Form type — "ipv" for now; extend when new form types are introduced
+    form_type: Mapped[str] = mapped_column(String(32), default="ipv", nullable=False)
 
     # Pre-filled from SaaS data
     claim_reference: Mapped[str] = mapped_column(String(128), nullable=False)
@@ -72,7 +70,10 @@ class ReportSection(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, index=True)
     report_id: Mapped[int] = mapped_column(ForeignKey("reports.id"), nullable=False)
-    section_type: Mapped[SectionType] = mapped_column(Enum(SectionType), nullable=False)
+    # native_enum=False stores as VARCHAR — no migration needed when adding new form types
+    section_type: Mapped[SectionType] = mapped_column(
+        Enum(SectionType, native_enum=False), nullable=False
+    )
     # Flexible JSON blob — each section type has its own shape (see schemas/report.py)
     content: Mapped[dict[str, Any]] = mapped_column(JSON, default=dict, nullable=False)
     updated_at: Mapped[datetime] = mapped_column(

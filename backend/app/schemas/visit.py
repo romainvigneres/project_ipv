@@ -17,6 +17,12 @@ class VisitRead(BaseModel):
     status: VisitStatus
     has_report: bool = False
 
+    # IPV pre-fill fields (synced from SaaS)
+    construction_start_date: str | None = None
+    reception_date: str | None = None
+    operation_cost: float | None = None
+    declared_damage: str | None = None
+
     model_config = {"from_attributes": True}
 
 

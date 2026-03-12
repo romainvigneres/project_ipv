@@ -34,6 +34,11 @@ class SaasVisit:
         self.address: str = raw["address"]
         self.visit_time: datetime = datetime.fromisoformat(raw["visitTime"])
         self.expert_email: str = raw["expertEmail"]
+        # IPV pre-fill fields
+        self.construction_start_date: str | None = raw.get("constructionStartDate")
+        self.reception_date: str | None = raw.get("receptionDate")
+        self.operation_cost: float | None = raw.get("operationCost")
+        self.declared_damage: str | None = raw.get("declaredDamage")
 
 
 class SaasClaim:
@@ -120,6 +125,10 @@ class StubSaasClient(AbstractSaasClient):
                     "address": "12 rue de la Paix, 75002 Paris",
                     "visitTime": f"{target_date.isoformat()}T09:00:00+00:00",
                     "expertEmail": expert_email,
+                    "constructionStartDate": "2022-03-15",
+                    "receptionDate": "2023-06-20",
+                    "operationCost": 285000.0,
+                    "declaredDamage": "Infiltrations importantes en toiture suite aux intempéries. Dégâts constatés sur les combles et la charpente.",
                 }
             ),
             SaasVisit(
@@ -131,6 +140,10 @@ class StubSaasClient(AbstractSaasClient):
                     "address": "5 avenue Victor Hugo, 69002 Lyon",
                     "visitTime": f"{target_date.isoformat()}T14:00:00+00:00",
                     "expertEmail": expert_email,
+                    "constructionStartDate": "2021-09-01",
+                    "receptionDate": "2022-11-30",
+                    "operationCost": 540000.0,
+                    "declaredDamage": "Fissures structurelles sur murs porteurs. Désordres importants constatés sur la dalle de fondation.",
                 }
             ),
         ]
