@@ -35,7 +35,7 @@ async function request(method, path, { body, params } = {}) {
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({ detail: res.statusText }))
-    throw new ApiError(res.status, err.detail || 'Request failed', err)
+    throw new ApiError(res.status, err.detail || 'Une erreur est survenue.', err)
   }
 
   if (res.status === 204) return null

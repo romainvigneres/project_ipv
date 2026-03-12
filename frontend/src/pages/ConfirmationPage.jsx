@@ -7,13 +7,13 @@ import Button from '../components/ui/Button'
 const STATUS_MESSAGE = {
   submitted: {
     icon: '⏳',
-    title: 'Rapport soumis',
-    body: 'Le rapport a été soumis et est en attente de validation par votre superviseur.',
+    title: 'Fiche IPV soumise',
+    body: 'La fiche IPV a été soumise et est en attente de validation par votre superviseur.',
   },
   sent: {
     icon: '✅',
-    title: 'Rapport envoyé',
-    body: 'Le rapport a été envoyé avec succès au client par e-mail.',
+    title: 'Fiche IPV envoyée',
+    body: 'La fiche IPV a été envoyée avec succès au gestionnaire par e-mail.',
   },
 }
 

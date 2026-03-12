@@ -38,7 +38,9 @@ async def create_report(
     visit = result.scalars().first()
     if not visit:
         raise HTTPException(status_code=404, detail="Visit not found")
-    return await report_service.create_for_visit(db, visit, current_user, body)
+    report = await report_service.create_for_visit(db, visit, current_user, body)
+    # Re-fetch with sections eagerly loaded (lazy-load forbidden in async SQLAlchemy)
+    return await report_service.get_or_404(db, report.id)
 
 
 @router.get("/", response_model=list[ReportRead])
@@ -79,7 +81,8 @@ async def submit_report(
     current_user: User = Depends(get_current_user),
 ) -> Report:
     report = await _get_report_for_expert(report_id, current_user, db)
-    return await report_service.submit(db, report, current_user)
+    await report_service.submit(db, report, current_user)
+    return await report_service.get_or_404(db, report_id)
 
 
 @router.post("/{report_id}/validate", response_model=ReportRead)
@@ -90,7 +93,8 @@ async def validate_report(
 ) -> Report:
     """Supervisor validates a submitted report before it is sent."""
     report = await report_service.get_or_404(db, report_id)
-    return await report_service.validate(db, report, validator)
+    await report_service.validate(db, report, validator)
+    return await report_service.get_or_404(db, report_id)
 
 
 @router.post("/{report_id}/send")

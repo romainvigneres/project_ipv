@@ -6,6 +6,38 @@ import Card from '../components/ui/Card'
 import Button from '../components/ui/Button'
 import Badge from '../components/ui/Badge'
 
+// Button label and destination vary by current fiche status
+function IpvActionButton({ visit, visitId, navigate }) {
+  const s = visit.report_status
+  if (s === 'completed' || s === 'validated') {
+    return (
+      <Button fullWidth size="lg" onClick={() => navigate(`/visits/${visitId}/report/review`)}>
+        Relire et envoyer la fiche →
+      </Button>
+    )
+  }
+  if (s === 'submitted') {
+    return (
+      <Button fullWidth size="lg" variant="secondary" onClick={() => navigate(`/visits/${visitId}/report/review`)}>
+        Voir la fiche (en attente de validation)
+      </Button>
+    )
+  }
+  if (s === 'sent') {
+    return (
+      <Button fullWidth size="lg" variant="secondary" onClick={() => navigate(`/visits/${visitId}/report/confirmation`)}>
+        Fiche envoyée ✓
+      </Button>
+    )
+  }
+  // draft or unknown
+  return (
+    <Button fullWidth size="lg" onClick={() => navigate(`/visits/${visitId}/report`)}>
+      Compléter la fiche IPV
+    </Button>
+  )
+}
+
 export default function VisitPage() {
   const { visitId } = useParams()
   const navigate = useNavigate()
@@ -75,13 +107,7 @@ export default function VisitPage() {
       </Card>
 
       {visit.has_report ? (
-        <Button
-          fullWidth
-          size="lg"
-          onClick={() => navigate(`/visits/${visitId}/report`)}
-        >
-          Continuer le rapport
-        </Button>
+        <IpvActionButton visit={visit} visitId={visitId} navigate={navigate} />
       ) : (
         <Button
           fullWidth
@@ -89,7 +115,7 @@ export default function VisitPage() {
           loading={createReport.isPending}
           onClick={() => createReport.mutate()}
         >
-          Créer le rapport d'expertise
+          Créer la fiche IPV
         </Button>
       )}
 
