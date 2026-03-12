@@ -85,6 +85,7 @@ async def list_visits(
         select(Visit)
         .where(Visit.id.in_(synced_ids))
         .options(selectinload(Visit.report))
+        .order_by(Visit.visit_time.asc())
     )
     todays_visits = list(today_result.scalars().all())
 
