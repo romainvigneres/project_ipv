@@ -33,6 +33,13 @@ class ActionAVenir(str, enum.Enum):
 
 # ── IPV section content shape ────────────────────────────────────────────────
 
+class DommageItem(BaseModel):
+    """A single damage entry — declared and assessed descriptions for one damage."""
+    saas_id: str | None = None          # SaaS identifier (None for expert-added items)
+    dommage_declare: str = ""           # pre-filled from SaaS
+    dommage_constate: str = ""          # filled by expert after visit
+
+
 class IpvContent(BaseModel):
     # 1. Enjeux
     enjeu_assureur: EnjeuAssureur | None = None
@@ -40,9 +47,8 @@ class IpvContent(BaseModel):
     enjeu_assure_immateriel: float | None = None
     # enjeu_assure_total is derived: materiel + immateriel (computed on frontend + PDF)
 
-    # 2. Dommages (multiples par dossier)
-    dommages_declares: list[str] = []   # pre-filled from SaaS
-    dommages_constates: list[str] = []  # filled by expert after visit
+    # 2. Dommages — list of DommageItem objects
+    dommages: list[DommageItem] = []
 
     # 3. Dates & coût chantier (pre-filled from SaaS, editable)
     date_ouverture_chantier: str = ""

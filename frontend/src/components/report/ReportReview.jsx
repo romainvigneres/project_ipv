@@ -81,25 +81,17 @@ export default function ReportReview({ report }) {
       </SectionBlock>
 
       <SectionBlock title="Dommages">
-        {(ipv.dommages_declares?.length > 0) ? (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dommage(s) déclaré(s)</span>
-            {ipv.dommages_declares.map((d, i) => (
-              <span key={i} className="text-sm text-gray-800">• {d}</span>
-            ))}
+        {ipv.dommages?.length > 0 ? ipv.dommages.map((dmg, i) => (
+          <div key={i} className="flex flex-col gap-1 border border-gray-100 rounded-lg p-3 bg-gray-50">
+            <p className="text-xs font-semibold text-stelliant-bleu-nuit uppercase tracking-wide">
+              Dommage {i + 1}
+              {dmg.saas_id && <span className="ml-1 font-normal text-gray-400">({dmg.saas_id})</span>}
+            </p>
+            <Field label="Déclaré" value={dmg.dommage_declare || null} />
+            <Field label="Constaté" value={dmg.dommage_constate || null} />
           </div>
-        ) : (
-          <Field label="Dommage(s) déclaré(s)" value={null} />
-        )}
-        {(ipv.dommages_constates?.length > 0) ? (
-          <div className="flex flex-col gap-0.5">
-            <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Dommage(s) constaté(s)</span>
-            {ipv.dommages_constates.map((d, i) => (
-              <span key={i} className="text-sm text-gray-800">• {d}</span>
-            ))}
-          </div>
-        ) : (
-          <Field label="Dommage(s) constaté(s)" value={null} />
+        )) : (
+          <p className="text-sm text-gray-400 italic">Aucun dommage renseigné</p>
         )}
       </SectionBlock>
 

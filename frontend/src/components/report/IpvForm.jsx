@@ -1,12 +1,12 @@
 /**
  * IpvForm
  * Single-page form for the "Information de Première Visite".
- * Pre-filled fields (dommages_declares, dates, coût) come from the visit object.
+ * Pre-filled fields (dommages from SaaS, dates, coût) come from the visit object.
  * The expert fills in the assessment fields and saves the whole form at once.
  */
 import { useForm, useWatch } from 'react-hook-form'
 import { useEffect, useRef, useState, forwardRef } from 'react'
-import Input, { Textarea } from '../ui/Input'
+import Input from '../ui/Input'
 import Button from '../ui/Button'
 import {
   ENJEU_ASSUREUR_OPTIONS,
@@ -116,47 +116,72 @@ const MoneyInput = forwardRef(function MoneyInput({ label, required, ...props },
   )
 })
 
-/** Dynamic list field (Dommages) */
-function DommagesList({ label, value = [], onChange, placeholder }) {
-  function update(i, text) {
-    const next = [...value]
-    next[i] = text
+/** Editor for the dommages list — each item has dommage_declare + dommage_constate */
+function DommagesEditor({ value = [], onChange }) {
+  function updateField(i, field, text) {
+    const next = value.map((item, idx) =>
+      idx === i ? { ...item, [field]: text } : item
+    )
     onChange(next)
   }
   function remove(i) {
     onChange(value.filter((_, idx) => idx !== i))
   }
   function add() {
-    onChange([...value, ''])
+    onChange([...value, { saas_id: null, dommage_declare: '', dommage_constate: '' }])
   }
+
   return (
-    <div className="flex flex-col gap-2">
-      {label && <p className="text-sm font-medium text-gray-700">{label}</p>}
-      {value.map((item, i) => (
-        <div key={i} className="flex gap-2 items-start">
-          <textarea
-            value={item}
-            onChange={(e) => update(i, e.target.value)}
-            rows={2}
-            placeholder={placeholder}
-            className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-base shadow-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
-          />
-          <button
-            type="button"
-            onClick={() => remove(i)}
-            className="mt-1 text-gray-400 hover:text-red-500 transition-colors"
-            aria-label="Supprimer"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+    <div className="flex flex-col gap-3">
+      {value.map((dmg, i) => (
+        <div key={i} className="border border-gray-200 rounded-lg p-3 flex flex-col gap-2 bg-gray-50 relative">
+          {/* Header row */}
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold text-stelliant-bleu-nuit uppercase tracking-wide">
+              Dommage {i + 1}
+              {dmg.saas_id && <span className="ml-2 font-normal text-gray-400">({dmg.saas_id})</span>}
+            </span>
+            {value.length > 1 && (
+              <button
+                type="button"
+                onClick={() => remove(i)}
+                className="text-gray-400 hover:text-red-500 transition-colors"
+                aria-label="Supprimer"
+              >
+                <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            )}
+          </div>
+          {/* Declared */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Déclaré</label>
+            <textarea
+              value={dmg.dommage_declare}
+              onChange={(e) => updateField(i, 'dommage_declare', e.target.value)}
+              rows={2}
+              placeholder="Dommage déclaré par l'assuré…"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
+            />
+          </div>
+          {/* Assessed */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-500 uppercase tracking-wide">Constaté</label>
+            <textarea
+              value={dmg.dommage_constate}
+              onChange={(e) => updateField(i, 'dommage_constate', e.target.value)}
+              rows={2}
+              placeholder="Dommage constaté lors de la visite…"
+              className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 resize-none"
+            />
+          </div>
         </div>
       ))}
       <button
         type="button"
         onClick={add}
-        className="flex items-center gap-1.5 text-sm text-brand-600 font-medium mt-1"
+        className="flex items-center gap-1.5 text-sm text-brand-600 font-medium"
       >
         <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -170,23 +195,32 @@ function DommagesList({ label, value = [], onChange, placeholder }) {
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function buildDefaults(initialData, visit) {
-  // Handle legacy single-string dommage fields from old saves
-  let dommages_declares = initialData.dommages_declares
-  if (!dommages_declares) {
-    const legacy = initialData.dommage_declare ?? visit?.declared_damage
-    dommages_declares = legacy ? [legacy] : []
+  let dommages = initialData.dommages
+
+  if (!dommages || dommages.length === 0) {
+    // Migrate from old flat-list format
+    const declared = initialData.dommages_declares ?? []
+    const assessed = initialData.dommages_constates ?? []
+    const len = Math.max(declared.length, assessed.length)
+    if (len > 0) {
+      dommages = Array.from({ length: len }, (_, i) => ({
+        saas_id: null,
+        dommage_declare: declared[i] ?? '',
+        dommage_constate: assessed[i] ?? '',
+      }))
+    } else {
+      // Pre-fill from visit SaaS data
+      dommages = visit?.declared_damage
+        ? [{ saas_id: visit.saas_id ?? null, dommage_declare: visit.declared_damage, dommage_constate: '' }]
+        : [{ saas_id: null, dommage_declare: '', dommage_constate: '' }]
+    }
   }
-  let dommages_constates = initialData.dommages_constates
-  if (!dommages_constates) {
-    const legacy = initialData.dommage_constate
-    dommages_constates = legacy ? [legacy] : []
-  }
+
   return {
     enjeu_assureur: '',
     enjeu_assure_materiel: '',
     enjeu_assure_immateriel: '',
-    dommages_declares,
-    dommages_constates,
+    dommages,
     date_ouverture_chantier: visit?.construction_start_date ?? '',
     date_reception: visit?.reception_date ?? '',
     cout_operation: visit?.operation_cost ?? '',
@@ -198,9 +232,8 @@ function buildDefaults(initialData, visit) {
     fraude_q4: false,
     fraude_q5: false,
     ...initialData,
-    // Always override with resolved list fields
-    dommages_declares,
-    dommages_constates,
+    // Always override with resolved dommages
+    dommages,
   }
 }
 
@@ -220,24 +253,21 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
     if (!saveSuccess) prevSuccess.current = false
   }, [saveSuccess])
 
-  const { register, handleSubmit, control, setValue, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, control, setValue, reset } = useForm({
     defaultValues: buildDefaults(initialData, visit),
   })
 
-  // Sync when navigating back to a previously saved form
   useEffect(() => {
     if (Object.keys(initialData).length > 0) {
       reset(buildDefaults(initialData, visit))
     }
   }, [])
 
-  // Watched values for derived total and list fields
   const materiel = useWatch({ control, name: 'enjeu_assure_materiel' })
   const immateriel = useWatch({ control, name: 'enjeu_assure_immateriel' })
   const actionsEffectuees = useWatch({ control, name: 'actions_effectuees' })
   const actionsAVenir = useWatch({ control, name: 'actions_a_venir' })
-  const dommagesDeclares = useWatch({ control, name: 'dommages_declares' })
-  const dommagesConstates = useWatch({ control, name: 'dommages_constates' })
+  const dommages = useWatch({ control, name: 'dommages' })
 
   const total = (parseFloat(materiel) || 0) + (parseFloat(immateriel) || 0)
 
@@ -248,8 +278,7 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
       enjeu_assure_immateriel: data.enjeu_assure_immateriel !== '' ? parseFloat(data.enjeu_assure_immateriel) : null,
       cout_operation: data.cout_operation !== '' ? parseFloat(data.cout_operation) : null,
       enjeu_assureur: data.enjeu_assureur || null,
-      dommages_declares: dommagesDeclares.filter(Boolean),
-      dommages_constates: dommagesConstates.filter(Boolean),
+      dommages: dommages.filter((d) => d.dommage_declare || d.dommage_constate),
     }
     onSave('ipv', cleaned)
   }
@@ -260,11 +289,7 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
       {/* 1 — Enjeu assureur */}
       <FormCard>
         <SectionTitle number="1" title="Enjeu assureur" />
-        <Select
-          label="Enjeu assureur"
-          error={errors.enjeu_assureur?.message}
-          {...register('enjeu_assureur')}
-        >
+        <Select {...register('enjeu_assureur')}>
           <option value="">— Sélectionner —</option>
           {ENJEU_ASSUREUR_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>{o.label}</option>
@@ -277,16 +302,8 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
         <SectionTitle number="2" title="Enjeu assuré" />
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3">
-            <MoneyInput
-              label="Matériel"
-              placeholder="0"
-              {...register('enjeu_assure_materiel')}
-            />
-            <MoneyInput
-              label="Immatériel"
-              placeholder="0"
-              {...register('enjeu_assure_immateriel')}
-            />
+            <MoneyInput label="Matériel" placeholder="0" {...register('enjeu_assure_materiel')} />
+            <MoneyInput label="Immatériel" placeholder="0" {...register('enjeu_assure_immateriel')} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-sm font-medium text-gray-700">Total</p>
@@ -300,20 +317,10 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
       {/* 3 — Dommages */}
       <FormCard>
         <SectionTitle number="3" title="Dommages" />
-        <div className="flex flex-col gap-4">
-          <DommagesList
-            label="Dommage(s) déclaré(s)"
-            value={dommagesDeclares}
-            onChange={(v) => setValue('dommages_declares', v)}
-            placeholder="Dommage déclaré par l'assuré…"
-          />
-          <DommagesList
-            label="Dommage(s) constaté(s)"
-            value={dommagesConstates}
-            onChange={(v) => setValue('dommages_constates', v)}
-            placeholder="Dommage constaté lors de la visite…"
-          />
-        </div>
+        <DommagesEditor
+          value={dommages}
+          onChange={(v) => setValue('dommages', v)}
+        />
       </FormCard>
 
       {/* 4 — Chantier */}
@@ -321,22 +328,10 @@ export default function IpvForm({ initialData = {}, visit, onSave, saving, saveS
         <SectionTitle number="4" title="Informations chantier" />
         <div className="flex flex-col gap-3">
           <div className="grid grid-cols-2 gap-3 items-end">
-            <Input
-              label="Ouverture chantier"
-              type="date"
-              {...register('date_ouverture_chantier')}
-            />
-            <Input
-              label="Date de réception"
-              type="date"
-              {...register('date_reception')}
-            />
+            <Input label="Ouverture chantier" type="date" {...register('date_ouverture_chantier')} />
+            <Input label="Date de réception" type="date" {...register('date_reception')} />
           </div>
-          <MoneyInput
-            label="Coût de l'opération"
-            placeholder="0"
-            {...register('cout_operation')}
-          />
+          <MoneyInput label="Coût de l'opération" placeholder="0" {...register('cout_operation')} />
         </div>
       </FormCard>
 

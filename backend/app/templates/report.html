@@ -89,20 +89,20 @@
 
   <div class="section">
     <div class="section-title">Dommages</div>
-    <table>
-      {% set dd = ipv.get('dommages_declares', []) %}
-      {% set dc = ipv.get('dommages_constates', []) %}
-      {% if dd %}
-        {% for d in dd %}<tr><td class="lbl">{% if loop.first %}Dommage(s) déclaré(s){% endif %}</td><td>{{ d }}</td></tr>{% endfor %}
-      {% else %}
-        <tr><td class="lbl">Dommage(s) déclaré(s)</td><td>—</td></tr>
-      {% endif %}
-      {% if dc %}
-        {% for d in dc %}<tr><td class="lbl">{% if loop.first %}Dommage(s) constaté(s){% endif %}</td><td>{{ d }}</td></tr>{% endfor %}
-      {% else %}
-        <tr><td class="lbl">Dommage(s) constaté(s)</td><td>—</td></tr>
-      {% endif %}
-    </table>
+    {% set dommages = ipv.get('dommages', []) %}
+    {% if dommages %}
+      {% for dmg in dommages %}
+      <table style="margin-bottom:6px;">
+        {% if dommages|length > 1 %}
+        <tr><td class="lbl" colspan="2" style="background:#e8ecf5;color:#171D3F;">Dommage {{ loop.index }}{% if dmg.get('saas_id') %} — {{ dmg.get('saas_id') }}{% endif %}</td></tr>
+        {% endif %}
+        <tr><td class="lbl">Déclaré</td><td>{{ dmg.get('dommage_declare') or '—' }}</td></tr>
+        <tr><td class="lbl">Constaté</td><td>{{ dmg.get('dommage_constate') or '—' }}</td></tr>
+      </table>
+      {% endfor %}
+    {% else %}
+      <table><tr><td class="lbl">Dommages</td><td>—</td></tr></table>
+    {% endif %}
   </div>
 
   <div class="section">
