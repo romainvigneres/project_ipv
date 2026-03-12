@@ -75,7 +75,18 @@ async def list_visits(
     - pending_report: past visits with no completed report
     """
     today = date.today()
-    todays_visits = await _sync_visits(db, saas, current_user, today)
+    synced = await _sync_visits(db, saas, current_user, today)
+
+    # Re-fetch today's visits with report relationship eagerly loaded
+    # (accessing .report directly on flushed objects triggers a lazy-load which
+    # is forbidden in async SQLAlchemy)
+    synced_ids = [v.id for v in synced]
+    today_result = await db.execute(
+        select(Visit)
+        .where(Visit.id.in_(synced_ids))
+        .options(selectinload(Visit.report))
+    )
+    todays_visits = list(today_result.scalars().all())
 
     # Past visits without a completed report
     result = await db.execute(
