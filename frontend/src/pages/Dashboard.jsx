@@ -9,6 +9,8 @@ function VisitCard({ visit, onClick }) {
     hour: '2-digit',
     minute: '2-digit',
   })
+  // Show report status badge, or "À compléter" if no report yet
+  const badgeStatus = visit.report_status ?? (visit.has_report ? 'draft' : null)
   return (
     <Card onClick={onClick}>
       <div className="flex items-start justify-between gap-2">
@@ -20,7 +22,7 @@ function VisitCard({ visit, onClick }) {
           </p>
         </div>
         <div className="flex flex-col items-end gap-1 shrink-0">
-          {visit.has_report && <Badge status="draft" />}
+          {badgeStatus && <Badge status={badgeStatus} />}
           <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
@@ -93,8 +95,8 @@ export default function Dashboard() {
       </Section>
 
       <Section
-        title="Rapports en attente"
-        empty="Aucun rapport en attente."
+        title="Fiches IPV en attente"
+        empty="Aucune fiche IPV en attente."
       >
         {pending.length > 0 && pending.map((v) => (
           <VisitCard key={v.id} visit={v} onClick={() => navigate(`/visits/${v.id}`)} />

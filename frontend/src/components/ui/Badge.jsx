@@ -9,11 +9,11 @@ const COLORS = {
 }
 
 const LABELS = {
-  draft:       'Brouillon',
-  completed:   'Complété',
-  submitted:   'Soumis',
-  validated:   'Validé',
-  sent:        'Envoyé',
+  draft:       'À compléter',
+  completed:   'À envoyer',
+  submitted:   'À valider',
+  validated:   'Validée',
+  sent:        'Envoyée',
   scheduled:   'Planifiée',
   in_progress: 'En cours',
 }

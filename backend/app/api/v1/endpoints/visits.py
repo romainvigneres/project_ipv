@@ -102,15 +102,14 @@ async def list_visits(
         .limit(20)
     )
     past_visits = result.scalars().all()
-    pending = [v for v in past_visits if not v.report or v.report.status == "draft"]
+    # Show all past visits whose fiche isn't sent yet
+    pending = [v for v in past_visits if not v.report or v.report.status != "sent"]
 
     def to_read(v: Visit) -> VisitRead:
         return VisitRead(
-            **{
-                c.name: getattr(v, c.name)
-                for c in v.__table__.columns
-            },
+            **{c.name: getattr(v, c.name) for c in v.__table__.columns},
             has_report=v.report is not None,
+            report_status=v.report.status.value if v.report else None,
         )
 
     return VisitListResponse(
@@ -138,4 +137,5 @@ async def get_visit(
     return VisitRead(
         **{c.name: getattr(visit, c.name) for c in visit.__table__.columns},
         has_report=visit.report is not None,
+        report_status=visit.report.status.value if visit.report else None,
     )

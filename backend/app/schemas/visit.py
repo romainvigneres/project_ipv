@@ -23,6 +23,9 @@ class VisitRead(BaseModel):
     operation_cost: float | None = None
     declared_damage: str | None = None
 
+    # Report status — null if no report exists yet
+    report_status: str | None = None
+
     model_config = {"from_attributes": True}
 
 
