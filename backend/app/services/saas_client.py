@@ -146,6 +146,36 @@ class StubSaasClient(AbstractSaasClient):
                     "declaredDamage": "Fissures structurelles sur murs porteurs. Désordres importants constatés sur la dalle de fondation.",
                 }
             ),
+            SaasVisit(
+                {
+                    "id": "VISIT-003",
+                    "claimReference": "SIN-2024-00125",
+                    "clientName": "Pierre Leclerc",
+                    "clientEmail": "pierre.leclerc@example.com",
+                    "address": "8 rue des Lilas, 33000 Bordeaux",
+                    "visitTime": f"{target_date.isoformat()}T10:30:00+00:00",
+                    "expertEmail": expert_email,
+                    "constructionStartDate": "2020-05-10",
+                    "receptionDate": "2021-08-15",
+                    "operationCost": 125000.0,
+                    "declaredDamage": "Dégâts des eaux suite à rupture de canalisation en sous-sol. Remontées capillaires constatées.",
+                }
+            ),
+            SaasVisit(
+                {
+                    "id": "VISIT-004",
+                    "claimReference": "SIN-2024-00126",
+                    "clientName": "Sophie Bernard",
+                    "clientEmail": None,
+                    "address": "22 allée des Roses, 31000 Toulouse",
+                    "visitTime": f"{target_date.isoformat()}T16:00:00+00:00",
+                    "expertEmail": expert_email,
+                    "constructionStartDate": "2019-11-20",
+                    "receptionDate": "2021-03-01",
+                    "operationCost": 890000.0,
+                    "declaredDamage": "Effondrement partiel d'un plancher bois. Présence de termites signalée par le propriétaire.",
+                }
+            ),
         ]
 
     async def get_claim(self, claim_reference: str) -> SaasClaim:
